@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Tienes una sorpresa">
+<meta property="og:description" content="Toca para abrir">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Tulipanes para ti</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Jost:wght@300;400;500&display=swap">
+<style>
+  /* Layout: una sola tarjeta centrada de noche, la rosa arriba, el contador como cuatro cifras grabadas abajo. Tema único y oscuro a propósito. */
+  :root {
+    --night: #1a0b12;
+    --wine: #3a1322;
+    --petal: #e2557a;
+    --blush: #f6c9d4;
+    --leaf: #3f7a52;
+    --ink: #fbeef1;
+    --muted: #c99aa8;
+    --display: "Pinyon Script", "Brush Script MT", cursive;
+    --body: "Jost", "Segoe UI", system-ui, sans-serif;
+    color-scheme: dark;
+  }
+  html, body { min-height: 100%; }
+  body {
+    background: radial-gradient(120% 80% at 50% 20%, var(--wine), var(--night) 70%);
+    background-color: var(--night);
+    color: var(--ink);
+    font-family: var(--body);
+    font-weight: 300;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 32px;
+    overflow-x: hidden;
+  }
+  main {
+    max-width: 440px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .para { font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  svg.rosa { width: min(260px, 70vw); height: auto; overflow: visible; }
+  /* Secuencia: sale la envoltura, crecen los tallos, salen las hojas, aparecen los botones cerrados y se abren, luego el texto */
+  svg.rosa { cursor: pointer; }
+  .anim .rosa .envoltura { transform-box: fill-box; transform-origin: 50% 100%; animation: brotar .6s .1s cubic-bezier(.3,1.3,.5,1) both; }
+  .anim .rosa .tallo { stroke-dasharray: 260; animation: crecer 1.3s var(--d) ease-out both; }
+  .anim .rosa .hoja { transform-box: fill-box; transform-origin: 50% 100%; animation: brotar .8s var(--d) cubic-bezier(.3,1.4,.5,1) both; }
+  .anim .rosa .cabeza { transform-origin: 0 0; animation: brotar .8s var(--d) cubic-bezier(.3,1.3,.5,1) both; }
+  .anim .rosa .izq { transform-origin: 0 0; animation: abrirIzq 1.4s var(--d2) ease-out both; }
+  .anim .rosa .der { transform-origin: 0 0; animation: abrirDer 1.4s var(--d2) ease-out both; }
+  .rosa .izq { transform: rotate(-8deg); }
+  .rosa .der { transform: rotate(8deg); }
+  .anim .revela { animation: aparecer 1s var(--t, 3.6s) ease-out both; }
+  @keyframes crecer { from { stroke-dashoffset: 260; } to { stroke-dashoffset: 0; } }
+  @keyframes brotar { from { transform: scale(0); } to { transform: none; } }
+  @keyframes abrirIzq { from { transform: rotate(12deg); } to { transform: rotate(-8deg); } }
+  @keyframes abrirDer { from { transform: rotate(-12deg); } to { transform: rotate(8deg); } }
+  @keyframes aparecer { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(44px, 13vw, 60px);
+    line-height: 1.05;
+    margin: 0;
+    color: var(--blush);
+    text-wrap: balance;
+  }
+  .msg { font-size: 17px; line-height: 1.6; margin: 0; max-width: 34ch; text-wrap: balance; }
+  .msg b { font-weight: 500; color: var(--blush); }
+  .contador {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+  }
+  .contador div {
+    border: 1px solid rgba(246, 201, 212, .25);
+    border-radius: 14px;
+    padding: 14px 4px 10px;
+    background: rgba(26, 11, 18, .45);
+  }
+  .contador span {
+    display: block;
+    font-size: clamp(28px, 9vw, 38px);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .contador small { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .hoy { font-family: var(--display); font-size: 40px; color: var(--petal); margin: 0; }
+  .viene {
+    font-family: var(--display);
+    font-size: clamp(32px, 9vw, 42px);
+    color: var(--petal);
+    margin: 8px 0 0;
+  }
+  .firma { font-size: 14px; color: var(--muted); margin: 0; }
+  .petalos { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .petalos i {
+    position: absolute; top: -20px;
+    width: 12px; height: 9px;
+    background: var(--petal);
+    border-radius: 80% 0 80% 0;
+    opacity: .55;
+    animation: caer linear infinite;
+  }
+  @keyframes caer {
+    to { transform: translate(var(--dx), 110vh) rotate(540deg); }
+  }
+  .sobre {
+    position: fixed; inset: 0; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+    background: radial-gradient(120% 80% at 50% 40%, var(--wine), var(--night) 70%);
+    background-color: var(--night);
+    padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+    transition: opacity .7s ease;
+    text-align: center;
+  }
+  .sobre.abierto { opacity: 0; pointer-events: none; }
+  .sobre button {
+    background: none; border: 0; padding: 0; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+    color: var(--ink); font: inherit;
+    animation: latir 1.8s ease-in-out infinite;
+  }
+  .sobre button:focus-visible { outline: 2px solid var(--blush); outline-offset: 8px; border-radius: 12px; }
+  .sobre svg { width: min(230px, 64vw); height: auto; }
+  .sobre .titulo { font-family: var(--display); font-size: clamp(38px, 11vw, 50px); color: var(--blush); margin: 0; }
+  .sobre .toca { font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+  @keyframes latir { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+  .sonido {
+    position: fixed; z-index: 4;
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid rgba(246, 201, 212, .3);
+    background: rgba(26, 11, 18, .6); color: var(--blush);
+    font-size: 18px; cursor: pointer;
+  }
+  .sonido:focus-visible { outline: 2px solid var(--blush); outline-offset: 3px; }
+  .clic {
+    font: 500 15px var(--body); letter-spacing: .12em; text-transform: uppercase;
+    color: var(--night); background: var(--blush);
+    border: 0; border-radius: 999px; padding: 14px 28px; cursor: pointer;
+    box-shadow: 0 0 0 0 rgba(246, 201, 212, .5);
+  }
+  .clic:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .anim .clic { animation: aparecer 1s var(--t) ease-out both, pulso 2s 7s ease-out infinite; }
+  @keyframes pulso { from { box-shadow: 0 0 0 0 rgba(246, 201, 212, .5); } to { box-shadow: 0 0 0 16px rgba(246, 201, 212, 0); } }
+  .nota {
+    border: 0; padding: 0; background: none;
+    max-width: min(380px, calc(100vw - 32px));
+    display: none; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .nota[open] { display: flex; animation: nota .6s cubic-bezier(.3,1.3,.5,1) both; }
+  .nota::backdrop { background: rgba(26, 11, 18, .8); }
+  .nota img { display: block; width: 100%; border-radius: 12px; transform: rotate(-2deg); box-shadow: 0 20px 50px rgba(0, 0, 0, .5); }
+  .nota button {
+    font: 400 14px var(--body); letter-spacing: .15em; text-transform: uppercase;
+    color: var(--ink); background: none; border: 1px solid rgba(246, 201, 212, .4);
+    border-radius: 999px; padding: 10px 22px; cursor: pointer;
+  }
+  @keyframes nota { from { opacity: 0; transform: scale(.6) rotate(-8deg); } to { opacity: 1; transform: none; } }
+  /* Pergamino con vara de madera y doble borde rosado, como las notas que ella hizo */
+  .pergamino { width: min(300px, 86%); }
+  .pergamino .vara {
+    position: relative; z-index: 1;
+    height: 10px; margin: 0 -18px; border-radius: 3px;
+    background: linear-gradient(#d29a62, #9a6633);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
+  }
+  .pergamino .papel {
+    margin-top: -4px;
+    background: #fdfbfa; color: #4d4448;
+    border: 4px double #e8837f;
+    padding: 14px 18px 18px;
+    text-align: left; font-weight: 400; font-size: 16px; line-height: 1.55;
+    transform-origin: top;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+  }
+  .pergamino .papel p { margin: 0 0 10px; }
+  .pergamino .num { font-weight: 500; color: #4a90d9; letter-spacing: .05em; }
+  .pergamino .tit { font-weight: 500; font-size: 17px; }
+  .pergamino .tit span { color: #e2443f; }
+  .pergamino .cierre { text-align: center; font-weight: 500; margin: 0; }
+  .anim .pergamino .vara { animation: aparecer .5s calc(var(--t) - .3s) ease-out both; }
+  .anim .pergamino .papel { animation: desenrollar 1.2s var(--t) cubic-bezier(.3,.8,.3,1) both; }
+  @keyframes desenrollar { from { transform: scaleY(0); } to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .nota[open], .anim .pergamino * { animation: none; }
+    .sobre button { animation: none; }
+    .anim .rosa *, .anim .revela, .petalos i { animation: none !important; }
+    .petalos { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="petalos" id="petalos" aria-hidden="true"></div>
+
+<div class="sobre" id="sobre">
+  <button type="button" id="abrir" aria-label="Abrir la sorpresa">
+    <p class="titulo">Tienes una sorpresa</p>
+    <svg viewBox="0 0 220 150" aria-hidden="true">
+      <rect x="4" y="4" width="212" height="142" rx="10" fill="#f6c9d4"/>
+      <path d="M4 146 L94 78 M216 146 L126 78" stroke="#d99aab" stroke-width="2" fill="none"/>
+      <path d="M4 14 Q4 4 14 4 H206 Q216 4 216 14 L110 92 Z" fill="#eab3c1" stroke="#d99aab" stroke-width="2"/>
+      <circle cx="110" cy="90" r="20" fill="#a3183f"/>
+      <path d="M110 100 C 96 90, 100 78, 110 85 C 120 78, 124 90, 110 100 Z" fill="#f6c9d4"/>
+    </svg>
+    <span class="toca">Toca para abrir</span>
+  </button>
+</div>
+
+<button type="button" class="sonido" id="sonido" hidden aria-label="Silenciar música">♪</button>
+
+<main id="tarjeta">
+  <p class="para revela" style="--t:.2s">Para ti, mi amor</p>
+
+  <svg class="rosa" id="rosa" viewBox="0 0 200 260" role="img" aria-label="Un ramo de tulipanes. Tócalo para verlo crecer otra vez">
+    <g id="ramo"></g>
+    <path class="envoltura" d="M62 196 L138 196 L112 256 L88 256 Z" fill="#f6c9d4" stroke="#d99aab" stroke-width="1.5"/>
+    <path class="envoltura" d="M86 222 C 72 212, 70 236, 86 230 L100 226 L114 230 C 130 236, 128 212, 114 222 L100 226 Z" fill="#a3183f"/>
+  </svg>
+
+  <h1 class="revela">Otro mes contigo</h1>
+  <p class="msg revela" style="--t:3.9s">El <b id="fecha">4</b> cumplimos un mes más de novios, y ya cuento los segundos.</p>
+
+  <div class="contador revela" style="--t:4.3s" id="contador" aria-live="polite">
+    <div><span id="d">0</span><small>días</small></div>
+    <div><span id="h">00</span><small>horas</small></div>
+    <div><span id="m">00</span><small>min</small></div>
+    <div><span id="s">00</span><small>seg</small></div>
+  </div>
+  <p class="hoy revela" style="--t:4.3s" id="hoy" hidden>¡Hoy es nuestro día!</p>
+
+  <!-- Responde a la nota #11 que ella le escribió en otro mes -->
+  <div class="pergamino" style="--t:5s">
+    <div class="vara" aria-hidden="true"></div>
+    <div class="papel">
+      <p class="num">#12</p>
+      <p class="tit"><span aria-hidden="true">♥</span> Respuesta a tu nota #11</p>
+      <p>Me pediste que esa personita no cambiara por nada del mundo. Trato hecho, con una sola excepción: cada mes que pasa te quiero un poquito más.</p>
+      <p class="cierre">Esa es mi razón #12.</p>
+    </div>
+  </div>
+
+  <p class="viene revela" style="--t:6.2s">Cositas están por venir…</p>
+  <button type="button" class="clic revela" style="--t:6.7s" id="verNota">Haz clic aquí</button>
+  <p class="firma revela" style="--t:7s">Guarda la fecha. Te quiero.</p>
+</main>
+
+<dialog class="nota" id="nota" aria-label="Te amo mucho">
+  <img src="te-amo.png" alt="Te amo mucho, escrito a mano con dos corazones rojos">
+  <button type="button" id="cerrarNota">Cerrar</button>
+</dialog>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  // Ramo: cada tulipán tiene tallo, hoja y una flor de cuatro pétalos que nace cerrada y se abre
+  const ramo = document.getElementById('ramo');
+  const ns = 'http://www.w3.org/2000/svg';
+  const svgEl = (tag, attrs, padre) => {
+    const e = document.createElementNS(ns, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    padre.appendChild(e);
+    return e;
+  };
+  // [x, y de la flor, color claro, color oscuro]
+  const tulipanes = [[100, 56, '#e2557a', '#a3183f'], [64, 84, '#f4a3b5', '#d4446b'], [136, 80, '#c4284f', '#7a0f2e'], [40, 118, '#f6c9d4', '#e2557a'], [162, 116, '#ec7a68', '#b8433a']];
+  tulipanes.forEach(([x, y, claro, oscuro], i) => {
+    const d = .5 + i * .15;
+    const bx = 100 + (x - 100) * .12;
+    const tallo = svgEl('path', { class: 'tallo', d: `M${bx} 250 C ${bx} 190, ${x} ${y + 90}, ${x} ${y + 2}`, fill: 'none', stroke: '#3f7a52', 'stroke-width': 3.5, 'stroke-linecap': 'round' }, ramo);
+    tallo.style.setProperty('--d', d + 's');
+    const lado = x < 100 ? -1 : 1;
+    const hoja = svgEl('path', { class: 'hoja', d: `M${bx} 205 C ${bx + lado * 22} 185, ${bx + lado * 26} 160, ${bx + lado * 18 + (x - 100) * .3} ${y + 70} C ${bx + lado * 8} 170, ${bx} 185, ${bx} 205 Z`, fill: i % 2 ? '#356b47' : '#3f7a52' }, ramo);
+    hoja.style.setProperty('--d', (d + .5) + 's');
+    const pos = svgEl('g', { transform: `translate(${x} ${y})` }, ramo);
+    const cabeza = svgEl('g', { class: 'cabeza' }, pos);
+    cabeza.style.setProperty('--d', (d + 1.1) + 's');
+    cabeza.style.setProperty('--d2', (d + 1.8) + 's');
+    svgEl('path', { d: 'M-13 0 C -17 -20, -9 -33, 0 -35 C 9 -33, 17 -20, 13 0 Z', fill: oscuro }, cabeza);
+    svgEl('path', { class: 'izq', d: 'M2 2 C -14 2, -21 -20, -13 -38 C -4 -28, 3 -14, 2 2 Z', fill: claro, stroke: oscuro, 'stroke-width': .6 }, cabeza);
+    svgEl('path', { class: 'der', d: 'M-2 2 C 14 2, 21 -20, 13 -38 C 4 -28, -3 -14, -2 2 Z', fill: claro, stroke: oscuro, 'stroke-width': .6 }, cabeza);
+    svgEl('path', { d: 'M-8 2 C -11 -14, -5 -28, 0 -32 C 5 -28, 11 -14, 8 2 Z', fill: claro, stroke: oscuro, 'stroke-width': .6, opacity: .95 }, cabeza);
+  });
+
+  // Tocar el ramo lo hace crecer otra vez
+  const tarjeta = document.getElementById('tarjeta');
+  document.getElementById('rosa').addEventListener('click', () => {
+    tarjeta.classList.remove('anim');
+    void tarjeta.offsetWidth;
+    tarjeta.classList.add('anim');
+  });
+
+  // Música: caja de música sintetizada en el navegador (los navegadores solo dejan sonar audio después de un toque)
+  let ctx, salida;
+  function nota(t, midi, dur, vol) {
+    const f = 440 * 2 ** ((midi - 69) / 12);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    g.connect(salida);
+    for (const [mult, tipo, v] of [[1, 'sine', 1], [2, 'triangle', .15]]) {
+      const o = ctx.createOscillator();
+      const gv = ctx.createGain();
+      o.type = tipo; o.frequency.value = f * mult; gv.gain.value = v;
+      o.connect(gv).connect(g);
+      o.start(t); o.stop(t + dur);
+    }
+  }
+  // Do, Lam, Fa, Sol, Do, Lam, Rem, Sol: arpegio de seis corcheas por compás y una nota de melodía arriba
+  const acordes = [[48,55,64,60], [45,52,60,57], [41,48,57,53], [43,50,59,55], [48,55,64,60], [45,52,60,57], [38,45,53,50], [43,50,59,55]];
+  const melodia = [76, 72, 69, 71, 79, 76, 77, 74];
+  const corchea = 0.28, vuelta = acordes.length * 6 * corchea;
+  function tocarVuelta(t0) {
+    acordes.forEach((a, c) => {
+      const t = t0 + c * 6 * corchea;
+      nota(t, a[0], 2.2, .12);
+      [1, 2, 3, 2, 1, 2].forEach((idx, j) => nota(t + j * corchea, a[idx] + 12, 1.2, .07));
+      nota(t, melodia[c], 2.4, .1);
+      nota(t + 3 * corchea, melodia[c] - (c % 2 ? 3 : 2), 1.6, .06);
+    });
+  }
+  function iniciarMusica() {
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      salida = ctx.createGain();
+      salida.gain.value = .8;
+      // eco suave para que suene a sala
+      const eco = ctx.createDelay(); eco.delayTime.value = .33;
+      const ret = ctx.createGain(); ret.gain.value = .3;
+      salida.connect(ctx.destination);
+      salida.connect(eco).connect(ret).connect(eco);
+      ret.connect(ctx.destination);
+      let t0 = ctx.currentTime + .1;
+      tocarVuelta(t0);
+      setInterval(() => {
+        if (ctx.currentTime > t0 + vuelta - 2) { t0 += vuelta; tocarVuelta(t0); }
+      }, 500);
+      $('sonido').hidden = false;
+    } catch (e) { /* sin audio, la invitación sigue funcionando */ }
+  }
+  $('sonido').addEventListener('click', () => {
+    const sonando = ctx.state === 'running';
+    sonando ? ctx.suspend() : ctx.resume();
+    $('sonido').style.opacity = sonando ? .4 : 1;
+    $('sonido').setAttribute('aria-label', sonando ? 'Activar música' : 'Silenciar música');
+  });
+
+  // Sobre: al tocarlo se abre, empieza la música y la rosa crece
+  $('abrir').addEventListener('click', () => {
+    $('sobre').classList.add('abierto');
+    tarjeta.classList.add('anim');
+    iniciarMusica();
+    setTimeout(() => { $('sobre').hidden = true; }, 800);
+  });
+
+  // Nota escrita a mano: se abre con el botón, se cierra con el botón o tocando fuera
+  const carta = $('nota');
+  $('verNota').addEventListener('click', () => carta.showModal());
+  $('cerrarNota').addEventListener('click', () => carta.close());
+  carta.addEventListener('click', e => { if (e.target === carta) carta.close(); });
+
+  // Pétalos cayendo
+  const caja = document.getElementById('petalos');
+  for (let i = 0; i < 14; i++) {
+    const e = document.createElement('i');
+    e.style.left = Math.random() * 100 + '%';
+    e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+    e.style.animationDuration = (9 + Math.random() * 8) + 's';
+    e.style.animationDelay = (-Math.random() * 15) + 's';
+    caja.appendChild(e);
+  }
+
+  // Contador al próximo día 4 (hora local de quien lo abre); el propio día 4 muestra el mensaje de hoy
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function proximo4(ahora) {
+    let t = new Date(ahora.getFullYear(), ahora.getMonth(), 4);
+    if (ahora.getDate() > 4) t = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 4);
+    return t;
+  }
+  console.assert(proximo4(new Date(2026, 10, 2)).getTime() === new Date(2026, 10, 4).getTime());
+  console.assert(proximo4(new Date(2026, 11, 5)).getTime() === new Date(2027, 0, 4).getTime());
+
+  const pad = n => String(n).padStart(2, '0');
+  function tick() {
+    const ahora = new Date();
+    const t = proximo4(ahora);
+    $('fecha').textContent = `4 de ${meses[t.getMonth()]}`;
+    const esHoy = ahora.getDate() === 4;
+    $('contador').hidden = esHoy;
+    $('hoy').hidden = !esHoy;
+    if (esHoy) return;
+    let s = Math.max(0, Math.floor((t - ahora) / 1000));
+    $('d').textContent = Math.floor(s / 86400);
+    $('h').textContent = pad(Math.floor(s % 86400 / 3600));
+    $('m').textContent = pad(Math.floor(s % 3600 / 60));
+    $('s').textContent = pad(s % 60);
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>
